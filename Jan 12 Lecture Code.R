@@ -32,7 +32,8 @@ for (i in 1:n.sen) {
 }
 proc.time() - ptm
 
-# Start the clock!
+# Slightly more vectorized approach to the same problem (use apply to find the vector of total bills sponsored for each senator)
+# Runs roughly twice as fast as for loop approach above
 ptm <- proc.time()
 sponsor = function(x) length(which(x==1))
 bills_sponsored = apply(senmat,1,sponsor)
@@ -43,10 +44,3 @@ for(i in 1:102) {
 }
 print (b/bills_sponsored)
 proc.time() - ptm
-
-newmat = ifelse(senmat==2,0,senmat) # matrix where 1 indicates primary sponsor
-newmat = as.matrix(newmat, nrow=102, ncol=10327)
-co_sponsored = (colSums(senmat)-1)/2
-newmat %*% co_sponsored
-tot_cosponsors = newmat %*% co_sponsored
-
