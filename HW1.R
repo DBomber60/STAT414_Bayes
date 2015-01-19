@@ -1,3 +1,7 @@
+list.of.packages = c("ggplot2")
+new.packages = list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+
 library(ggplot2)
 
 # Problem 2
@@ -53,3 +57,4 @@ posterior = dnorm(x, mean=m, sd = sqrt(v))
 df = data.frame(cbind(x,density, posterior))
 ggplot(df, aes(x)) + geom_line(aes(y=density, colour="prior")) + geom_line(aes(y=posterior, color="posterior"))+
   scale_colour_manual("Distributions", values = c("red", "blue"))
+
