@@ -4,7 +4,7 @@ if(length(new.packages)) install.packages(new.packages)
 
 library(ggplot2)
 
-# Problem 2
+### PROBLEM 2
 prior = function(theta) {
   ifelse(theta>=0 & theta <=0.5, 4*theta, ifelse(theta > 0.5 & theta <= 1, 4-4*theta,0))
 }
@@ -15,6 +15,9 @@ marginal_y = function(theta) {
   ifelse(theta>=0 & theta <=0.5, choose(82,45)*4*theta*likelihood(theta,82,45), 
   ifelse(theta > 0.5 & theta <= 1, choose(82,45)*(4-4*theta)*likelihood(theta,82,45),0))
 }
+
+# evaluate marginal of y at y=45
+integrate(marginal_y,0,1)
 
 posterior_R1 = function(theta) {dbeta(theta,45+2,82-45+1)}
 a = integrate(posterior_R1,0,.5)$value
@@ -28,13 +31,12 @@ posterior = function(theta) {
   ifelse(theta > 0.5 & theta <= 1, (c2/b)*dbeta(theta,45+1,82-45+2),0))
 }
 
-integrate(posterior, 0,1)
-
 posterior_mean = function(theta) {
   ifelse(theta>=0 & theta <=0.5, theta*(c1/a)*dbeta(theta,45+2,82-45+1),
   ifelse(theta > 0.5 & theta <= 1, theta*(c2/b)*dbeta(theta,45+1,82-45+2),0))
 }
 
+# posterior mean of theta
 mean = integrate(posterior_mean, 0,1)$value
 
 posterior_second_moment = function(theta) {
@@ -47,7 +49,7 @@ variance = integrate(posterior_second_moment,0,1)$value - mean^2
 ggplot(data.frame(x=c(0, 1)), aes(x)) + stat_function(fun=posterior, aes(colour="Posterior")) + stat_function(fun=prior, aes(colour="Prior"))+
   scale_colour_manual("Distributions", values = c("red", "blue"))
 
-# Question 3
+### PROBLEM 3
 # prior distribution of the mean - exponential with rate parameter = 1/5
 x = seq(0, 20, length=1000)
 density = dexp(x, rate = 1/5)
