@@ -36,7 +36,7 @@ mu_n = (kappa_0*mu_0+sum(group_1))/(kappa_n)
 sigmasq_n = (sigmasq_0*nu_0+kappa_0*mu_0^2+sum(group_1^2)-mu_n^2)/nu_n
 
 # posterior inference
-nMC = 153
+nMC = 10000
 post_sigsq_sample = 1/rgamma(nMC,0.5*nu_n, 0.5*nu_n*sigmasq_n)
 post_mu_sample = rnorm(nMC, mu_n, sqrt(post_sigsq_sample/kappa_n))
 hist(post_mu_sample, nclass=100, col='blue')
@@ -44,7 +44,7 @@ CI = quantile(post_mu_sample, prob=c(0.025, 0.975))
 CI; summary(post_mu_sample)
 m = rnorm(nMC, mean=post_mu_sample, sd= sqrt(post_sigsq_sample))
 y_hat = mean(m)
-sum((abs(rep(y_hat,length(group_2))-group_2))/length(group_2)) # 0.12
+sum((abs(rep(y_hat,length(group_2))-group_2))/length(group_2)) # ~1.2
 
 # Question 2
 n = length(group_1)
@@ -62,15 +62,7 @@ mean_b0 = mu_n[1]; mean_b1 = mu_n[2]
 # sample from the multivariate normal to get intercept and slope coefficient
 coefficients = mvrnorm(n = m, mu_n, sigma_n)
 predictions = coefficients[,1]+ coefficients[,2]*group_2_bedTime
-sum(predictions-group_2)/length(group_2) #-0.08
-
-
-
-
-
-
-
-
+sum(abs(predictions-group_2))/length(group_2) # ~1.1
 
 
 
