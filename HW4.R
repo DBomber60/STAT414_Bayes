@@ -1,8 +1,9 @@
+library(MASS)
+
 ## PROBLEM 1
-
-
 sample = function(n) tan(pi/2*runif(n))
 # visualize resulting density, excluding values over 10
+a = sample(1000)
 hist(a[a<10], breaks=100)
 
 r_sample = function(n) {
@@ -55,8 +56,53 @@ hist(X[[1]], breaks=100)
 mean(X[[1]])
 mean(X[[2]])
 
-
 x = seq(from=0, to=10, by=1/1000)
 y = dgamma(x, shape=2, rate = 0.5)
 plot(x,y)
+
+## PROBLEM 3
+mu=c(0,0)
+Sigma = matrix(c(1,0.8,0.8,1.0),nrow=2)
+d=length(mu)
+bivn = matrix(0,nrow=100,ncol=2)
+for (i in 1:100) {
+  L=t(chol(Sigma)); Z=rnorm(d,0,1)
+  X=mu+L%*%Z
+  bivn[i,1]=X[1,1]
+  bivn[i,2]=X[2,1]
+}
+
+# plot bivariate normal
+bivn.kde <- kde2d(bivn[,1], bivn[,2], n = 100)
+contour(bivn.kde)
+# image(bivn.kde)
+persp(bivn.kde, phi = 45, theta = 30)
+
+# importance sampling using bivariate normal
+x = bivn[,1]
+y = bivn[,2]
+sxx = sum(x^2)
+syy = sum(y^2)
+sxy = sum(x*y)
+
+n = 5000
+# correlation density function assuming n = 100
+corr_fun = function(p) { 
+  ((1/(1-p^2))^(100/2))*exp(-1/(2*(1-p^2))*(sxx+syy-2*p*sxy))
+}
+sple = runif(n, min=-1, max=1)
+om = corr_fun(sple)
+est=sum(sple*om)/sum(om)
+v1=var((om/mean(om))*sple)
+se=sqrt(v1/n)
+z=qnorm(0.975)
+ci = c(est-z*se, est+z*se)
+
+
+
+
+
+
+
+
 
