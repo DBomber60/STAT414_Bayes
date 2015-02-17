@@ -1,11 +1,10 @@
 library(MASS)
 
-## PROBLEM 1
+## PROBLEM 1a
+# sample function below samples randomly from f(x) specified in part a
 sample = function(n) tan(pi/2*runif(n))
-# visualize resulting density, excluding values over 10
-a = sample(1000)
-hist(a[a<10], breaks=100)
 
+## PROBLEM 1b
 r_sample = function(n) {
   Vy=numeric(n); Vcpt=integer(n); # initialize vectors
   for(j in 1:n){
@@ -18,15 +17,13 @@ r_sample = function(n) {
   }
   return(list(Vy,Vcpt))
 }
-
 X = r_sample(50000)
-mean(X[[2]])
+# visualize 5000 draws from this distribution
 hist(X[[1]], breaks=100)
-
+# visually make sure 'g' function completely envelopes 'f'
 fun1 = function(x) 0.5*exp(-(x^2)/2)
 fun2 = function(x) exp(-x)
 fun3 = function(x) fun1(x)/fun2(x)
-
 curve(fun1, from=0, to=5, ylim=c(0,1))
 curve(fun2, from=0, to=5, add=TRUE)
 curve(fun3, from=0, to=5, add=TRUE)
@@ -53,12 +50,12 @@ gamma_sample = function(n) {
 
 X = gamma_sample(1000)
 hist(X[[1]], breaks=100)
-mean(X[[1]])
-mean(X[[2]])
 
-x = seq(from=0, to=10, by=1/1000)
-y = dgamma(x, shape=2, rate = 0.5)
-plot(x,y)
+# monte carlo integral and confidence interval
+ihat = mean(X[[1]])
+se = sqrt(var(X[[1]])/1000)
+z= qnorm(0.975)
+CI= c(ihat-z*se,ihat+z*se) # 95% conf int
 
 ## PROBLEM 3
 mu=c(0,0)
@@ -75,8 +72,6 @@ for (i in 1:100) {
 # plot bivariate normal
 bivn.kde <- kde2d(bivn[,1], bivn[,2], n = 100)
 contour(bivn.kde)
-# image(bivn.kde)
-persp(bivn.kde, phi = 45, theta = 30)
 
 # importance sampling using bivariate normal
 x = bivn[,1]
@@ -97,12 +92,3 @@ v1=var((om/mean(om))*sple)
 se=sqrt(v1/n)
 z=qnorm(0.975)
 ci = c(est-z*se, est+z*se)
-
-
-
-
-
-
-
-
-
