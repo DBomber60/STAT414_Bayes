@@ -20,11 +20,11 @@ r_sample = function(n) {
 X = r_sample(50000)
 # visualize 5000 draws from this distribution
 hist(X[[1]], breaks=100)
-# visually make sure 'g' function completely envelopes 'f'
-fun1 = function(x) 0.5*exp(-(x^2)/2)
+# visualize relevant functions
+fun1 = function(x) (2/sqrt(2*pi))*exp(-(x^2)/2)
 fun2 = function(x) exp(-x)
-fun3 = function(x) fun1(x)/fun2(x)
-curve(fun1, from=0, to=5, ylim=c(0,1))
+fun3 = function(x) fun1(x)/fun2(x) #h(x) - ratio of our two functions
+curve(fun1, from=0, to=5, ylim=c(0,1.5))
 curve(fun2, from=0, to=5, add=TRUE)
 curve(fun3, from=0, to=5, add=TRUE)
 
@@ -58,6 +58,7 @@ z= qnorm(0.975)
 CI= c(ihat-z*se,ihat+z*se) # 95% conf int
 
 ## PROBLEM 3
+# generate 100 samples from bivariate normal
 mu=c(0,0)
 Sigma = matrix(c(1,0.8,0.8,1.0),nrow=2)
 d=length(mu)
@@ -88,6 +89,7 @@ corr_fun = function(p) {
 sple = runif(n, min=-1, max=1)
 om = corr_fun(sple)
 est=sum(sple*om)/sum(om)
+CVsq = var(om/mean(om)) # under 25, good to go!
 v1=var((om/mean(om))*sple)
 se=sqrt(v1/n)
 z=qnorm(0.975)
