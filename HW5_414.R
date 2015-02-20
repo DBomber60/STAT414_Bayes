@@ -11,7 +11,7 @@ n=length(y)
 sigmasq_0=5
 tau_0 = tau_1 = 1e-3
 
-# log posterior B0, B1
+# log posterior B0, B1 --- use linear model for sigmasq estimates (as in HW2 solution doc)
 mod = lm(y~x)
 sigmasq = sum(mod$residuals^2)/(n-2)
 sigma_n_inv = matrix(c(tau_0+n/sigmasq, sum(x)/sigmasq, sum(x)/sigmasq, tau_1+sum(x^2)/sigmasq), ncol=2)
