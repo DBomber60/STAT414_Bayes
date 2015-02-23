@@ -11,7 +11,7 @@ n=length(y)
 sigmasq_0=5
 tau_0 = tau_1 = 1e-3
 
-# log posterior B0, B1 --- use linear model for sigmasq estimates (as in HW2 solution doc)
+# log posterior B0, B1 --- use linear model for sigmasq estimates
 mod = lm(y~x)
 sigmasq = sum(mod$residuals^2)/(n-2)
 sigma_n_inv = matrix(c(tau_0+n/sigmasq, sum(x)/sigmasq, sum(x)/sigmasq, tau_1+sum(x^2)/sigmasq), ncol=2)
@@ -24,7 +24,7 @@ lpi = function(y) -t(y-mu_n)%*%sigma_n_inv%*%(y-mu_n)
 # Metropolis algorithm for B0, B1
 Niter = 15000
 k = diag(1,2); C=chol(k)
-sig = 0.0001
+sig = 0.01
 Res = matrix(NA, nrow=Niter, ncol=2)
 beta = numeric(2)
 log_pi=lpi(beta)
@@ -57,3 +57,34 @@ acf(output_b1, lag=50, col="red")
 mean(output_b1)
 CI = quantile(output_b1, c(0.025, 0.975))
 
+# sigma squared inference via metropolois algo
+
+sigmasq_0=5
+
+logpi = function(theta){
+  n = length(y)
+  sumsq = sum((y-mean(y))^2)
+  v = -((3+n)/2)*log(theta)-(((sigmasq_0/2)+sumsq/2)/theta)
+  return(v)
+}
+
+Niter=30000; Res=double(Niter)
+sigma=0.1; theta=1
+for(i in 1:Niter){
+  theta_prop=theta+sigma*rnorm(1)
+  if (theta<=0) {} # do nothing if theta less than or equal 0
+  else {
+    R = exp(logpi(theta_prop)-logpi(theta))
+    Acc = min(1,R)
+    if(runif(1)<=Acc) theta=theta_prop
+  }
+  Res[i]=theta
+}
+
+sigmasq = Res[5000:Niter]
+par(mfrow=c(1,3))
+plot(sigmasq, type="l",col="blue")
+hist(sigmasq, breaks=50, prob=T, col="blue")
+acf(sigmasq, lag=50, col="red")
+mean(sigmasq)
+CI = quantile(sigmasq, c(0.025, 0.975))
