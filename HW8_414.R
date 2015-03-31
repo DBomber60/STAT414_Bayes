@@ -25,8 +25,8 @@ grad = function(beta,y,X){
 
 # propose a new beta using gradient
 beta_prop = function(beta,y,X){
-  sigma= 1/4
-  Sigma= sigma*diag(p)
+  sigma= 1/3
+  Sigma= sigma^2*diag(p)
   L = t(chol(Sigma))
   Z = rnorm(p,0,1)
   mu = beta+0.5*(sigma^2)*grad(beta,y,X)
