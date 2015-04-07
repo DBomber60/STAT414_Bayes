@@ -36,12 +36,12 @@ RWM_pois = function(Niter, y, X, lsig) {
   return (Res)
 }
 
-#Call sampler
+# call function
 Niter = 100000
 lsig = -2
 Res = RWM_pois(Niter, y, X, lsig)
 
-#Evaluate results
+# plot results and confidence interval
 Output = Res[10001:Niter,1]
 par(mfrow=c(1,3))
 plot(Output, type='l')
