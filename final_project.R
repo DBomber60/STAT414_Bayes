@@ -29,21 +29,28 @@ data$workingday = as.factor(data$workingday) #(1=neither weekend nor holiday, 0=
 data$weather = as.factor(data$weather)       #(1=clear, 2=mist/cloudy, 3=light precip.)
 
 # processed dataset
-X = model.matrix(~., data[,c(2:9, 13:16)])
 y = data[,12]
 n=length(y)
+X = cbind(rep(1, length(y)), model.matrix(~-1+hour+day+month+holiday+weather+temp+atemp+humidity+windspeed, data=data))
 p=dim(X)[2]
+
+m1 = glm(y~X-1, family=poisson)
+
 
 # testing with reduced model
 # X=X0[,c(1,9)]
 # p=dim(X)[2]
+
+# exploratory
+g = ggplot(data, aes(hour, count))
+g+geom_boxplot()
 
 ###Implement Gibbs Sampler
 
 # prior parameters
 kappa=0.01
 a=b=1.1
-Niter=100
+Niter=10000
 Res=matrix(NA, ncol=p+1, nrow=Niter)
 
 
@@ -63,13 +70,14 @@ for(jj in 1:Niter){
   Res[jj,]=c(sigmasq, as.vector(beta))
 }
 
-Output=Res[,3]
+Output=Res[,10]
 par(mfrow=c(1,3))
 plot(Output, type='l',col='blue')
 hist(Output, breaks=50, prob=T, col='blue')
 acf(Output, lag=50, col='red')
 CI = apply(Res,2, function(x) {quantile(x, c(0.025, 0.975))})
 CI
+write.table(CI, file="CI.csv")
 
 ## tester ##
 m0 = lm(y~X-1)
@@ -78,13 +86,13 @@ summary(m0)
 ## test statistic ##
 T_fun = function(y_vec, X_mat) {
   hour_average = c()
-  for(i in 13:35) {
+  for(i in 2:25) {
     hour_average = c(hour_average, mean(y_vec[which(X_mat[,i]==1)]))
   }
   return (var(hour_average))
 }
 
-t_data = T_fun(y,X) # 17689.3
+t_data = T_fun(y,X) # 17754
 
 # sample from the posterior
 post_beta = Res[,-1]
@@ -98,7 +106,8 @@ for(i in 1:n_sample){
   T_stat[i] = T_fun(y_sample, X)
 }
 
-qplot(T_stat, geom="histogram", binwidth=10)
+qplot(T_stat, geom="histogram", binwidth=10, xlab="Test Statistic")+geom_vline(xintercept=c(t_data,mean(T_stat)), colour=c("blue","red"))
+  
 abline(v=t_data, col='blue')
 mean(T_stat)
 
@@ -107,6 +116,6 @@ ss_tot=sum((y-mean(y))^2)
 for(i in 1:Niter){
   Rsq[i]=1-crossprod(y-X%*%Res[i,-1],y-X%*%Res[i,-1])/ss_tot
 }
-hist(Rsq,nclass=30,prob=T)
+qplot(Rsq, geom="histogram")
 CI_Rsq=quantile(Rsq[1:Niter], c(0.025,0.975))
 CI_Rsq
